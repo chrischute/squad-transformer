@@ -1,4 +1,4 @@
-# Copyright 2018 Stanford University
+# Copyright 2018 Christopher Chute
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ from modules import BiDAFAttn, CharLevelEncoder, EncoderBlock, HighwayEncoder, S
 logging.basicConfig(level=logging.INFO)
 
 
-class FastSQuAD(object):
-    """Top-level module for the FastSQuAD model.
+class SQuADTransformer(object):
+    """Top-level module for the SQuADTransformer model.
     Exports build_graph to build the compute graph."""
 
     def __init__(self, flags, input_iterator, input_handle, word_emb_matrix, char_emb_matrix):
@@ -45,12 +45,12 @@ class FastSQuAD(object):
           word_emb_matrix: Numpy array of word embeddings (must be trimmed to be < 2 GB).
           char_emb_matrix: Numpy array of char embeddings. Values fine-tuned in training.
         """
-        print("Initializing the FastSQuADModel...")
+        print("Initializing the SQuADTransformer model...")
         self.flags = flags
         self.input_handle = input_handle
 
         # Add all parts of the graph
-        with tf.variable_scope("FastSQuADModel"):
+        with tf.variable_scope("SQuADTransformer"):
             self.add_placeholders()
             self.add_embedding_layer(input_iterator, word_emb_matrix, char_emb_matrix)
             self.build_graph()
@@ -405,13 +405,6 @@ class FastSQuAD(object):
     def eval(self, session, input_handle, num_batches, eval_dict, dataset_name="train"):
         """Evaluate the model on a given dataset. Performs "official" evaluation, where we
         take the max evaluation metric over all available ground truths.
-
-        :param session:
-        :param input_handle:
-        :param num_batches:
-        :param eval_dict:
-        :param dataset_name:
-        :return:
         """
         predictions = {}  # Maps question IDs to predicted answer text.
         losses = []

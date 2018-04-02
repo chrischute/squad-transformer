@@ -1,4 +1,5 @@
 """Official evaluation script for v1.1 of the SQuAD dataset.
+From the SQuAD website: https://rajpurkar.github.io/SQuAD-explorer/
 """
 
 from collections import Counter

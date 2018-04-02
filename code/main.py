@@ -1,4 +1,4 @@
-# Copyright 2018 Stanford University
+# Copyright 2018 Christopher Chute
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from model import FastSQuAD
+from model import SQuADTransformer
 from data_batcher import get_data_loader, load_dataset
 from preprocessing.squad_preprocess import data_from_json, preprocess, get_formatted_examples
 from collections import defaultdict
@@ -270,7 +270,7 @@ def main(unused_argv):
         input_handle = tf.placeholder(tf.string, shape=())
         input_iterator = tf.data.Iterator.from_string_handle(input_handle, train_dataset.output_types,
                                                              train_dataset.output_shapes)
-        model = FastSQuAD(FLAGS, input_iterator, input_handle, word_emb_matrix, char_emb_matrix)
+        model = SQuADTransformer(FLAGS, input_iterator, input_handle, word_emb_matrix, char_emb_matrix)
 
         # Setup train dir and logfile
         if not os.path.exists(FLAGS.train_dir):
@@ -328,7 +328,7 @@ def main(unused_argv):
             checkpoint_paths = [FLAGS.checkpoint_dir]
 
         # Make predictions using all checkpoints specified in checkpoint_paths
-        model = FastSQuAD(FLAGS, input_iterator, input_handle, word_emb_matrix, char_emb_matrix)
+        model = SQuADTransformer(FLAGS, input_iterator, input_handle, word_emb_matrix, char_emb_matrix)
         all_answers = defaultdict(list)  # Maps from UUID to list of (answer text, prob) pairs.
         for i in range(len(checkpoint_paths)):
             if is_ensemble:
