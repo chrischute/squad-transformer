@@ -10,7 +10,7 @@ In the spirit of this research, we follow [this paper](https://openreview.net/pd
 ## Encoder Block
 The following diagram shows a Transformer (left) and an Encoder Block (right). Note where the Encoder Block draws inspiration from the Transformer: The two modules are similar in their use of positional encoding, residual connections, [layer normalization](https://arxiv.org/pdf/1607.06450.pdf), self-attention sublayers, and feed-forward sublayers.
 
-![alt text](https://raw.githubusercontent.com/chrischute/squad-transformer/imgs/transformer_vs_encoder_block.png)
+![Alt text](/../master//imgs/transformer_vs_encoder_block.png?raw=true "Transformer vs. Encoder Block")
 
 An Encoder Block differs from the Transformer in its use of stacked convolutional sublayers, which use [depthwise-separable convolution](https://arxiv.org/pdf/1610.02357.pdf) to capture local dependencies in the input sequence. Also note that the sublayer pre- and post-processing steps are rearranged. An Encoder Block uses layer norm in the pre-processing step, and performs dropout and adds the residual connection in the post-processing step.
 
@@ -18,7 +18,7 @@ An Encoder Block differs from the Transformer in its use of stacked convolutiona
 ## Model
 Our model, based off [this paper](https://openreview.net/pdf?id=B14TlG-RW), follows a grouping common to SQuAD models: An embedding layer, followed by encoding, context-query attention, modeling, and output layers.
 
-![alt text](https://raw.githubusercontent.com/chrischute/squad-transformer/imgs/model.png)
+![Alt text](/../master/imgs/model.png?raw=true "Model")
 
   1. **Embedding Layer.** The embedding layer maps context and query words to [GloVe](https://nlp.stanford.edu/projects/glove/) 300-dimensional word embeddings (Common Crawl 840B corpus), and maps characters to trainable 200-dimensional character embeddings. The character embeddings are passed through a convolutional layer and a max-pooling layer, as described in [this paper](https://arxiv.org/pdf/1508.06615.pdf), to produce 200-dimensional character-level word embeddings. We concatenate the word embeddings and pass them through a two-layer highway network [9], which outputs a 500- dimensional encoding of each input position.
   2. **Encoding Layer.** The encoding layer consists of a single Encoder Block, as shown in Figure 1, applied after a linear down-projection of the embeddings to size `d_model = 128`. An Encoder Block stacks `B` blocks of [`C` convolutional sublayers, a single self-attention sublayer, a feed-forward layer]. As mentioned previously, the convolutional sublayers use depthwise-separable convolution. Self-attention is implemented with multi-head, scaled dot-product attention as described in [Attention Is All You Need](https://arxiv.org/pdf/1706.03762.pdf), with 8 heads applied in parallel over the input. The feed-forward sublayer is a pair of time-distributed linear mappings (equivalently, convolution with kernel size 1), with ReLU activation in between. For the encoding layer’s Encoder Block, each convolution has kernel size `k = 7` and applies `d_model = 128` filters. We set `B = 1` and `C = 4`. We share weights across applications of the encoding layer to the context and question embeddings.
