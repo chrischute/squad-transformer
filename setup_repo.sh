@@ -9,11 +9,11 @@ LOGS_DIR=$HEAD_DIR/logs
 mkdir -p $LOGS_DIR
 mkdir -p $DATA_DIR
 
-# Creates the environment, named "fs" for Fast SQuAD
-# conda create -n fs python=3.6
+# Creates the environment, named "squad"
+conda create -n squad python=3.6
 
 # Activates the environment
-source activate fs
+source activate squad
 
 # pip install into environment
 pip install -r requirements.txt
@@ -24,4 +24,4 @@ python "$CODE_DIR/preprocessing/download_wordvecs.py" --data_dir "$DATA_DIR"
 # Download and preprocess SQuAD data and save in data/
 python "$CODE_DIR/preprocessing/squad_preprocess.py" --data_dir "$DATA_DIR"
 
-echo "Setup complete. Run 'source activate fs' to activate virtual environment."
+echo "Setup complete. Run 'source activate squad' to activate virtual environment."
