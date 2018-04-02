@@ -1,0 +1,17 @@
+# Mac
+.DS_Store
+
+# Python
+*.pyc
+
+# PyCharm
+/code/.idea/
+
+# IPython
+/code/.ipynb_checkpoints/
+
+# Data Files (large)
+/data/
+
+# Log files (large)
+/logs/
