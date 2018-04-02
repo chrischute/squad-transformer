@@ -300,6 +300,9 @@ class FastSQuAD(object):
             Sets the learning rate using a linear scale from (step, lr) = (0, 0) -> (warmup_steps, 1/sqrt(d_model)).
             Thereafter, decreases the learning rate proportionally to 1/sqrt(global_step).
             """
+            if step_num <= 0:
+                return 0.0
+
             lr = float(self.flags.d_model) ** -0.5
             lr *= min(float(step_num) ** -0.5, float(step_num) * float(self.flags.lr_warmup) ** -1.5)
 

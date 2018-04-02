@@ -18,6 +18,10 @@ source activate squad
 # pip install into environment
 pip install -r requirements.txt
 
+# Download NLTK resources
+python -m nltk.downloader punkt
+python -m nltk.downloader perluniprops
+
 # Download GloVe vectors to data/
 python "$CODE_DIR/preprocessing/download_wordvecs.py" --data_dir "$DATA_DIR"
 
