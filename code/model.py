@@ -21,6 +21,7 @@ import sys
 
 import numpy as np
 import tensorflow as tf
+import tensorflow.contrib.layers as tf_layers
 from tensorflow.python.ops import embedding_ops
 from tqdm import tqdm
 
@@ -263,8 +264,8 @@ class SQuADTransformer(object):
 
             # Calculate the L2 regularization loss
             regularization_loss_vars = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
-            regularizer = tf.contrib.layers.l2_regularizer(scale=self.flags.l2_lambda)
-            self.l2_loss = tf.contrib.layers.apply_regularization(regularizer, regularization_loss_vars)
+            regularizer = tf_layers.l2_regularizer(scale=self.flags.l2_lambda)
+            self.l2_loss = tf_layers.apply_regularization(regularizer, regularization_loss_vars)
 
             # Add the loss components
             self.loss = self.loss_start + self.loss_end + self.l2_loss
