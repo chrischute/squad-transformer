@@ -8,7 +8,7 @@ In the spirit of this research, we follow [this paper](https://openreview.net/pd
 
 
 ## Encoder Block
-The following diagram shows a Transformer (left) and an Encoder Block (right). Note where the Encoder Block draws inspiration from the Transformer: The two modules are similar in their use of positional encoding, residual connections, [layer normalization](https://arxiv.org/pdf/1607.06450.pdf), self-attention sublayers, and feed-forward sublayers.
+The main component of our model is called an *Encoder Block*. The following diagram shows a Transformer (left) and an Encoder Block (right). Note where the Encoder Block draws inspiration from the Transformer: The two modules are similar in their use of positional encoding, residual connections, [layer normalization](https://arxiv.org/pdf/1607.06450.pdf), self-attention sublayers, and feed-forward sublayers.
 
 ![Alt text](/../master//imgs/transformer_vs_encoder_block.png?raw=true "Transformer vs. Encoder Block")
 
@@ -20,11 +20,13 @@ Our model, based off [this paper](https://openreview.net/pdf?id=B14TlG-RW), foll
 
 ![Alt text](/../master/imgs/model.png?raw=true "Model")
 
-  1. **Embedding Layer.** The embedding layer maps context and query words to [GloVe](https://nlp.stanford.edu/projects/glove/) 300-dimensional word embeddings (Common Crawl 840B corpus), and maps characters to trainable 200-dimensional character embeddings. The character embeddings are passed through a convolutional layer and a max-pooling layer, as described in [this paper](https://arxiv.org/pdf/1508.06615.pdf), to produce 200-dimensional character-level word embeddings. We concatenate the word embeddings and pass them through a two-layer highway network [9], which outputs a 500- dimensional encoding of each input position.
+  1. **Embedding Layer.** The embedding layer maps context and query words to [GloVe](https://nlp.stanford.edu/projects/glove/) 300-dimensional word embeddings (Common Crawl 840B corpus), and maps characters to trainable 200-dimensional character embeddings. The character embeddings are passed through a convolutional layer and a max-pooling layer, as described in [this paper](https://arxiv.org/pdf/1508.06615.pdf), to produce 200-dimensional character-level word embeddings. We concatenate the word embeddings and pass them through a two-layer [highway network](https://arxiv.org/pdf/1505.00387.pdf), which outputs a 500- dimensional encoding of each input position.
   2. **Encoding Layer.** The encoding layer consists of a single Encoder Block, as shown in Figure 1, applied after a linear down-projection of the embeddings to size `d_model = 128`. An Encoder Block stacks `B` blocks of [`C` convolutional sublayers, a single self-attention sublayer, a feed-forward layer]. As mentioned previously, the convolutional sublayers use depthwise-separable convolution. Self-attention is implemented with multi-head, scaled dot-product attention as described in [Attention Is All You Need](https://arxiv.org/pdf/1706.03762.pdf), with 8 heads applied in parallel over the input. The feed-forward sublayer is a pair of time-distributed linear mappings (equivalently, convolutions with kernel size 1), with ReLU activation in between. For the encoding layer’s Encoder Block, each convolution has kernel size `k = 7` and applies `d_model = 128` filters. We set `B = 1` and `C = 4`. We share weights across applications of the encoding layer to the context and question embeddings.
   3. **Context-Query Attention Layer (BiDAF).** The output of the encoding layer is fed to a bidirectional context-to-query (C2Q) and query-to-context (Q2C) layer, as described in [this paper](https://arxiv.org/pdf/1611.01603.pdf) (BiDAF). This layer computes a similarity matrix `S` of shape `(n, m)`, where `n` is the context length and `m` is the question length. The `(i, j)` entry of `S` is given by `S(i,j) = W[c_i, q_j, c_i * c_j]`. We apply softmax to the rows and multiply by the query vectors to get the C2Q attention. Similarly, we then apply softmax to the columns, multiply by the C2Q attention matrix, followed by the matrix of context vectors to get the Q2C attention. As in the BiDAF paper, we output `[C, C2Q, C * C2Q, C * Q2C]` from this layer.
-  4. **Modeling Layer.** For the modeling layer, we use an Encoder Block with `B = 7` blocks and `C = 2` convolutional sublayers per block. We use `k = 7` and `d_model = 128`, as in the encoding layer. We apply a single encoder block three times, producing outputs `M1`, `M2`, and `M3`.
+  4. **Modeling Layer.** For the modeling layer, we use an Encoder Block with `B = 7` blocks and `C = 2` convolutional sublayers per block. We use `k = 7` and `d_model = 128`, as in the encoding layer. We apply a single Encoder Block three times (*i.e.,* weights are shared across the three applications), producing outputs `M1`, `M2`, and `M3`.
   5. **Output Layer.** For the output layer, we predict the answer start and end probability distributions independently with two heads, each performing a linear down-projection followed by softmax. The start predictor takes `[M1, M2]` as input, and the end predictor takes `[M1, M3]` as input.
+
+At test time, a single model's predicted answer is the span `(i, j)` maximizing `p_start(i) * p_end(j)` subject to `i < j <= i + 15`. Our ensemble predictions use a majority voting strategy, where we take the span that is most commonly voted upon by the models. We break ties by taking the span with the highest predicted joint probability `p_start(i) * p_end(j)`.
 
 
 ## Training
@@ -52,4 +54,4 @@ On an NVIDIA Tesla K80 GPU, training takes about one hour per 10,000 iterations.
 
 
 ### Acknowledgements
-This began as a final project for [Stanford CS224n](http://web.stanford.edu/class/cs224n/), and was supported by the Winter 2018 teaching staff. Microsoft Azure generously provided GPU instance credits used during development.
+This began as a final project for [Stanford CS224n](http://web.stanford.edu/class/cs224n/), and was supported by the Winter 2018 teaching staff. [Microsoft Azure](https://azure.microsoft.com/en-us/) generously provided GPU instance credits used during development.
