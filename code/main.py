@@ -44,6 +44,7 @@ tf.app.flags.DEFINE_string("name", "", "Unique name for your experiment.")
 tf.app.flags.DEFINE_integer("num_epochs", 0, "Number of epochs to train. 0 means train indefinitely.")
 tf.app.flags.DEFINE_integer("num_loader_threads", 4, "Number of threads to use when parsing examples.")
 tf.app.flags.DEFINE_integer("shuffle_buffer", 12000, "Size of dataset shuffle buffer.")
+tf.app.flags.DEFINE_boolean("is_training", True, "True if and only if --mode={}.".format(TRAIN_MODE))
 
 # Hyperparameters
 # No fixed learning rate parameter. We used a special learning rate schedule defined in model.py.
