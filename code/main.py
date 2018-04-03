@@ -295,6 +295,7 @@ def main(unused_argv):
             raise Exception("For {} mode, you need to specify --json_in_path".format(EVAL_MODE))
         if FLAGS.checkpoint_dir == "" and FLAGS.ensemble_path == "":
             raise Exception("For {} mode, you need to specify --checkpoint_dir or --ensemble_path".format(EVAL_MODE))
+        FLAGS.is_training = False
 
         # Read the JSON data from file
         print("Loading test dataset from {}...".format(FLAGS.json_in_path))
