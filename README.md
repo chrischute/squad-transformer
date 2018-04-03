@@ -4,7 +4,7 @@
 ## Overview
 Effective reading comprehension models often rely on recurrent neural networks (RNNs) to capture positional dependencies in text. However, RNNs are sequential by construction, which limits the amount of parallel execution that can take place during training and inference. In [Attention Is All You Need](https://arxiv.org/pdf/1706.03762.pdf), the authors experiment with replacing RNN modules entirely with self-attention in a neural machine translation setting. Their replacement for recurrent cells is called the *Transformer.*
 
-In the spirit of this research, we follow [this paper](https://openreview.net/pdf?id=B14TlG-RW) and implement an RNN-free, attention-based model that performs competitively on the [Stanford Question Answering Dataset](https://rajpurkar.github.io/SQuAD-explorer/) (SQuAD). In particular, we use only convolution, dense layers, and self-attention, allowing our model to train ~4.5x faster than an analogous RNN-based model. This speedup comes without sacrificing effectiveness: A single model achieves 67.8/77.6 EM/F1 score, and an ensemble of 5 models achieves 69.7/78.8 EM/F1 score in official evaluation on the dev set.
+In the spirit of this research, we follow [this paper](https://openreview.net/pdf?id=B14TlG-RW) and implement an RNN-free, attention-based model that performs competitively on the [Stanford Question Answering Dataset](https://rajpurkar.github.io/SQuAD-explorer/) (SQuAD). In particular, we use only convolution, dense layers, and self-attention, allowing our model to train ~4.5x faster than an analogous RNN-based model. This speedup comes without sacrificing effectiveness: A single model achieves 67.8/77.6 EM/F1 score, and an ensemble of 10 models achieves 70.6/79.6 EM/F1 score in official evaluation on the dev set.
 
 
 ## Encoder Block
@@ -36,7 +36,7 @@ During training, we apply multiple forms of regularization. We use L2 regulariza
 
 
 ## Results
-We find that our model achieves over a four-fold speedup over an analogous RNN-based architecture. Moreover, our model is competitive on SQuAD. A single model achieves 67.8/77.6 EM/F1 score, and an ensemble of 5 models achieves 69.7/78.8 EM/F1 score in official evaluation on the dev set.
+We find that our model achieves over a four-fold speedup over an analogous RNN-based architecture. Moreover, our model is competitive on SQuAD. A single model achieves 67.8/77.6 EM/F1 score, and an ensemble of 10 models achieves 70.6/79.6 EM/F1 score in official evaluation on the dev set.
 
 
 ## Usage
