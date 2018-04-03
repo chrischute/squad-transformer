@@ -83,7 +83,7 @@ class SQuADTransformer(object):
 
         # Define savers (for checkpoints) and summaries (for TensorBoard).
         self.saver = tf.train.Saver(tf.global_variables(), max_to_keep=flags.keep_last)
-        best_checkpoints_dir = os.path.join(self.flags.logs_dir, 'best_checkpoints')
+        best_checkpoints_dir = os.path.join(self.flags.train_dir, 'best_checkpoint')
         self.best_model_saver = BestModelSaver(best_checkpoints_dir, num_to_keep=self.flags.keep_best)
         self.summaries = tf.summary.merge_all()
 
@@ -511,7 +511,7 @@ class SQuADTransformer(object):
                 write_summary(stats['f1'], "train/F1", summary_writer, global_step)
                 write_summary(stats['exact_match'], "train/EM", summary_writer, global_step)
 
-                # Early stopping based on dev EM. You could switch this to use F1 instead.
+                # Save this checkpoint if the dev_f1 is among the N best scores (N = self.flags.keep_best).
                 self.best_model_saver.handle(dev_f1, session, global_step)
 
             sys.stdout.flush()
