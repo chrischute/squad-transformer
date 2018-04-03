@@ -22,6 +22,7 @@ import sys
 import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.layers as tf_layers
+from saver import BestModelSaver
 from tensorflow.python.ops import embedding_ops
 from tqdm import tqdm
 
@@ -82,7 +83,8 @@ class SQuADTransformer(object):
 
         # Define savers (for checkpoints) and summaries (for TensorBoard).
         self.saver = tf.train.Saver(tf.global_variables(), max_to_keep=flags.keep_last)
-        self.best_model_saver = tf.train.Saver(tf.global_variables(), max_to_keep=flags.keep_best)
+        best_checkpoints_dir = os.path.join(self.flags.logs_dir, 'best_checkpoints')
+        self.best_model_saver = BestModelSaver(best_checkpoints_dir, num_to_keep=self.flags.keep_best)
         self.summaries = tf.summary.merge_all()
 
     def add_placeholders(self):
@@ -452,11 +454,8 @@ class SQuADTransformer(object):
         exp_loss = None
 
         # Checkpoint management.
-        # We keep one latest checkpoint, and one best checkpoint (early stopping)
+        # We keep one latest checkpoint, and flags.keep_best best checkpoints (ranked by dev F1)
         checkpoint_path = os.path.join(self.flags.train_dir, "qa.ckpt")
-        best_model_dir = os.path.join(self.flags.train_dir, "best_checkpoint")
-        best_model_ckpt_path = os.path.join(best_model_dir, "qa_best.ckpt")
-        best_dev_f1 = None
 
         # for TensorBoard
         summary_writer = tf.summary.FileWriter(self.flags.train_dir, session.graph)
@@ -513,10 +512,7 @@ class SQuADTransformer(object):
                 write_summary(stats['exact_match'], "train/EM", summary_writer, global_step)
 
                 # Early stopping based on dev EM. You could switch this to use F1 instead.
-                if best_dev_f1 is None or dev_f1 > best_dev_f1:
-                    best_dev_f1 = dev_f1
-                    logging.info("New best dev F1: {}. Saving to {}...".format(dev_f1, best_model_ckpt_path))
-                    self.best_model_saver.save(session, best_model_ckpt_path, global_step=global_step)
+                self.best_model_saver.handle(dev_f1, session, global_step)
 
             sys.stdout.flush()
 

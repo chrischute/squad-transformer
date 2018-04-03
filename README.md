@@ -4,7 +4,7 @@
 ## Overview
 Effective reading comprehension models often rely on recurrent neural networks (RNNs) to capture positional dependencies in text. However, RNNs are sequential by construction, which limits the amount of parallel execution that can take place during training and inference. In [Attention Is All You Need](https://arxiv.org/pdf/1706.03762.pdf), the authors experiment with replacing RNN modules entirely with self-attention in a neural machine translation setting. Their replacement for recurrent cells is called the *Transformer.*
 
-In the spirit of this research, we follow [this paper](https://openreview.net/pdf?id=B14TlG-RW) and implement an RNN-free, attention-based model that performs competitively on the Stanford Question Answering Dataset (SQuAD). In particular, we use only convolution, dense layers, and self-attention, allowing our model to train ~4.5x faster than an analogous RNN-based model. This speedup comes without sacrificing effectiveness: A single model achieves 67.8/77.6 EM/F1 score, and an ensemble of 5 models achieves 69.7/78.8 EM/F1 score in official evaluation on the dev set.
+In the spirit of this research, we follow [this paper](https://openreview.net/pdf?id=B14TlG-RW) and implement an RNN-free, attention-based model that performs competitively on the [Stanford Question Answering Dataset](https://rajpurkar.github.io/SQuAD-explorer/) (SQuAD). In particular, we use only convolution, dense layers, and self-attention, allowing our model to train ~4.5x faster than an analogous RNN-based model. This speedup comes without sacrificing effectiveness: A single model achieves 67.8/77.6 EM/F1 score, and an ensemble of 5 models achieves 69.7/78.8 EM/F1 score in official evaluation on the dev set.
 
 
 ## Encoder Block
@@ -50,8 +50,7 @@ To train this model for yourself, first get access to a machine with a GPU. We r
 
 We suggest training in a separate `tmux` session, then launching another session to run TensorBoard. To run TensorBoard, navigate to `squad-transformer/logs/` and run `tensorboard --logdir=. --port=5678`. Then you will be able to see plots in your browser at http://localhost:5678/ (if you're on a cloud instance, you may need to setup [SSH port forwarding](https://stackoverflow.com/questions/37987839/how-can-i-run-tensorboard-on-a-remote-server)).
 
-On an NVIDIA Tesla K80 GPU, training takes about one hour per 10,000 iterations.
-
+On an NVIDIA Tesla K80 GPU with batch size of 32, training proceeds at roughly 4,500 iterations per hour. Our model converges after ~30,000 iterations, giving a total training time of just under 7 hours.
 
 ### Acknowledgements
 This began as a final project for [Stanford CS224n](http://web.stanford.edu/class/cs224n/), and was supported by the Winter 2018 teaching staff. [Microsoft Azure](https://azure.microsoft.com/en-us/) generously provided GPU instance credits used during development.
