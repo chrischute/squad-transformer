@@ -18,7 +18,7 @@ import time
 import logging
 import os
 import sys
-
+import math
 import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.layers as tf_layers
@@ -93,6 +93,7 @@ class SQuADTransformer(object):
         """
         # Add placeholder for adaptive learning rate.
         self.learning_rate = tf.placeholder(tf.float32, shape=(), name="learning_rate")
+        tf.summary.scalar('learning_rate', self.learning_rate)  # log to tensorboard
 
         # Add a placeholder to feed in the keep probability (for dropout). Default to 1.0 for test time.
         self.keep_prob = tf.placeholder_with_default(1.0, shape=(), name="keep_prob")
@@ -303,11 +304,10 @@ class SQuADTransformer(object):
             Sets the learning rate using a linear scale from (step, lr) = (0, 0) -> (warmup_steps, 1/sqrt(d_model)).
             Thereafter, decreases the learning rate proportionally to 1/sqrt(global_step).
             """
-            if step_num <= 0:
-                return 0.0
 
-            lr = float(self.flags.d_model) ** -0.5
-            lr *= min(float(step_num) ** -0.5, float(step_num) * float(self.flags.lr_warmup) ** -1.5)
+            lr = self.flags.learning_rate
+            if step_num < self.flags.lr_warmup:
+                lr *= math.log(step_num + 1.) / math.log(self.flags.lr_warmup - 1.)
 
             return lr
 

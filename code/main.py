@@ -47,8 +47,8 @@ tf.app.flags.DEFINE_integer("shuffle_buffer", 12000, "Size of dataset shuffle bu
 tf.app.flags.DEFINE_boolean("is_training", True, "True if and only if --mode={}.".format(TRAIN_MODE))
 
 # Hyperparameters
-# No fixed learning rate parameter. We used a special learning rate schedule defined in model.py.
-tf.app.flags.DEFINE_float("lr_warmup", 2000, "Number of learning rate warmup steps (linear increase to sqrt(d_model)).")
+tf.app.flags.DEFINE_float("learning_rate", 0.001, "Learning rate after warmup period.")
+tf.app.flags.DEFINE_float("lr_warmup", 1000, "Number of learning rate warmup steps.")
 tf.app.flags.DEFINE_float("adam_beta_1", 0.8, "Adam optimizer beta_1 parameter.")
 tf.app.flags.DEFINE_float("adam_beta_2", 0.999, "Adam optimizer beta_2 parameter.")
 tf.app.flags.DEFINE_float("adam_epsilon", 1e-7, "Adam optimizer epsilon parameter.")
